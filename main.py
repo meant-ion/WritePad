@@ -15,22 +15,27 @@ def new_file():
     filename = ''
 
 
-def select_all(text):
-    text.tag_add("sel", '1.0', 'end')
+def select_all():
+    text_space.tag_add("sel", '1.0', 'end')
     return
 
 
-def deselect_all(text):
-    text.tag_remove("sel", '1.0', 'end')
+def deselect_all():
+    text_space.tag_remove("sel", '1.0', 'end')
     return
 
 
 def choose_select_option(text):
     global is_all_selected
     if is_all_selected:
-        deselect_all(text)
+        is_all_selected = False
+        print("Deselecting all")
+        deselect_all()
     else:
-        select_all(text)
+        is_all_selected = True
+        print("Selecting All")
+        select_all()
+    return
 
 
 def open_file():
@@ -75,7 +80,7 @@ scrollbar = Scrollbar(root)
 scrollbar.pack(side=RIGHT, fill=Y)
 
 # get the actual workspace for the text editor built up and set, and bind the bar to it
-text_space = Text(root, yscrollcommand=scrollbar.set, undo=True)
+text_space = Text(root, yscrollcommand=scrollbar.set, undo=True, autoseparators=True)
 text_space.pack(expand=True, fill=BOTH)
 
 scrollbar.config(command=text_space.yview)
@@ -102,11 +107,15 @@ help_option_menu = Menu(menu_bar, tearoff=0)
 help_option_menu.add_command(label="About")
 menu_bar.add_cascade(label="Help", menu=help_option_menu)
 
+# adding in the keyboard shortcuts
 root.bind('<Control-s>', save)
 root.bind('<Control-q>', root.quit)
 root.bind('<Control-t>', new_file)
 root.bind('<Control-g>', open_file)
-root.bind('<Control-a>', choose_select_option(text_space))
+root.bind('<Control-a>', choose_select_option)
+root.bind('<Control-c>', clear)
+root.bind('<Control-z>', text_space.edit_undo)
+root.bind('<Shift-Control-Z>', text_space.edit_redo)
 
 
 root.config(menu=menu_bar)
