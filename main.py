@@ -5,12 +5,32 @@ edit_command_list = ["Undo", "Redo", "Cut", "Copy", "Paste", "Select All", "Sear
 
 filename = ''
 
+is_all_selected = False
+
 
 def new_file():
     global filename
     save_old_file()
     text_space.delete('1.0', 'end')
     filename = ''
+
+
+def select_all(text):
+    text.tag_add("sel", '1.0', 'end')
+    return
+
+
+def deselect_all(text):
+    text.tag_remove("sel", '1.0', 'end')
+    return
+
+
+def choose_select_option(text):
+    global is_all_selected
+    if is_all_selected:
+        deselect_all(text)
+    else:
+        select_all(text)
 
 
 def open_file():
@@ -45,18 +65,22 @@ def clear():
     text_space.delete("0.0", "end")
 
 
+# build the frame first and get the basics handled
 root = Tk()
 root.minsize(height=400, width=400)
 root.title("WritePad")
 
+# set the scrollbar
 scrollbar = Scrollbar(root)
 scrollbar.pack(side=RIGHT, fill=Y)
 
+# get the actual workspace for the text editor built up and set, and bind the bar to it
 text_space = Text(root, yscrollcommand=scrollbar.set, undo=True)
 text_space.pack(expand=True, fill=BOTH)
 
 scrollbar.config(command=text_space.yview)
 
+# build and set up the menu bar for all important functions
 menu_bar = Menu(root)
 file_option_menu = Menu(menu_bar, tearoff=0)
 file_option_menu.add_command(label="New", command=new_file)
@@ -77,6 +101,13 @@ menu_bar.add_cascade(label="Edit", menu=edit_option_menu)
 help_option_menu = Menu(menu_bar, tearoff=0)
 help_option_menu.add_command(label="About")
 menu_bar.add_cascade(label="Help", menu=help_option_menu)
+
+root.bind('<Control-s>', save)
+root.bind('<Control-q>', root.quit)
+root.bind('<Control-t>', new_file)
+root.bind('<Control-g>', open_file)
+root.bind('<Control-a>', choose_select_option(text_space))
+
 
 root.config(menu=menu_bar)
 root.mainloop()
