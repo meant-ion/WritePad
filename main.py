@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter.filedialog import asksaveasfile, askopenfilename
 
-edit_command_list = ["Undo", "Redo", "Cut", "Copy", "Paste", "Select All", "Search", "Delete"]
+edit_command_list = ["Search", "Delete"]
 
 filename = ''
 
@@ -15,26 +15,14 @@ def new_file():
     filename = ''
 
 
-def select_all():
-    text_space.tag_add("sel", '1.0', 'end')
-    return
-
-
-def deselect_all():
-    text_space.tag_remove("sel", '1.0', 'end')
-    return
-
-
-def choose_select_option(text):
+def choose_select_option():
     global is_all_selected
     if is_all_selected:
         is_all_selected = False
-        print("Deselecting all")
-        deselect_all()
+        text_space.tag_add("sel", '1.0', 'end')
     else:
         is_all_selected = True
-        print("Selecting All")
-        select_all()
+        text_space.tag_remove("sel", '1.0', 'end')
     return
 
 
@@ -80,7 +68,7 @@ scrollbar = Scrollbar(root)
 scrollbar.pack(side=RIGHT, fill=Y)
 
 # get the actual workspace for the text editor built up and set, and bind the bar to it
-text_space = Text(root, yscrollcommand=scrollbar.set, undo=True, autoseparators=True)
+text_space = Text(root, yscrollcommand=scrollbar.set, undo=True)
 text_space.pack(expand=True, fill=BOTH)
 
 scrollbar.config(command=text_space.yview)
@@ -88,34 +76,24 @@ scrollbar.config(command=text_space.yview)
 # build and set up the menu bar for all important functions
 menu_bar = Menu(root)
 file_option_menu = Menu(menu_bar, tearoff=0)
-file_option_menu.add_command(label="New", command=new_file)
-file_option_menu.add_command(label="Open", command=open_file)
-file_option_menu.add_command(label="Save", command=save_old_file)
-file_option_menu.add_command(label="Save As...", command=save)
-file_option_menu.add_command(label="Close", command=clear)
+file_option_menu.add_command(label="New", command=new_file, accelerator="Ctrl-T")
+file_option_menu.add_command(label="Open", command=open_file, accelerator="Ctrl-G")
+file_option_menu.add_command(label="Save", command=save_old_file, accelerator="Ctrl-S")
+file_option_menu.add_command(label="Save As...", command=save, accelerator="Ctrl-Shift-S")
+file_option_menu.add_command(label="Close", command=clear, accelerator="Ctrl-B")
 
 file_option_menu.add_separator()
-file_option_menu.add_command(label="Exit", command=root.quit)
+file_option_menu.add_command(label="Exit", command=root.quit, accelerator="Ctrl-Q")
 menu_bar.add_cascade(label="File", menu=file_option_menu)
 
-edit_option_menu = Menu(menu_bar, tearoff=0)
-for command in edit_command_list:
-    edit_option_menu.add_command(label=command)
-menu_bar.add_cascade(label="Edit", menu=edit_option_menu)
-
-help_option_menu = Menu(menu_bar, tearoff=0)
-help_option_menu.add_command(label="About")
-menu_bar.add_cascade(label="Help", menu=help_option_menu)
-
 # adding in the keyboard shortcuts
-root.bind('<Control-s>', save)
+root.bind('<Control-s>', save_old_file)
+root.bind('<Control-Shift-S>', save)
 root.bind('<Control-q>', root.quit)
 root.bind('<Control-t>', new_file)
 root.bind('<Control-g>', open_file)
 root.bind('<Control-a>', choose_select_option)
-root.bind('<Control-c>', clear)
-root.bind('<Control-z>', text_space.edit_undo)
-root.bind('<Shift-Control-Z>', text_space.edit_redo)
+root.bind('<Control-b>', clear)
 
 
 root.config(menu=menu_bar)
